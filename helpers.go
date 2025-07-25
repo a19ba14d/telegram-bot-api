@@ -652,6 +652,51 @@ func NewKeyboardButtonLocation(text string) KeyboardButton {
 	}
 }
 
+// NewKeyboardButtonRequestUsers creates a keyboard button that requests
+// user selection upon click.
+func NewKeyboardButtonRequestUsers(text string, requestUsers KeyboardButtonRequestUsers) KeyboardButton {
+	return KeyboardButton{
+		Text:         text,
+		RequestUsers: &requestUsers,
+	}
+}
+
+// NewKeyboardButtonRequestChat creates a keyboard button that requests
+// chat selection upon click.
+func NewKeyboardButtonRequestChat(text string, requestChat KeyboardButtonRequestChat) KeyboardButton {
+	return KeyboardButton{
+		Text:        text,
+		RequestChat: &requestChat,
+	}
+}
+
+// NewKeyboardButtonRequestGroup creates a keyboard button that requests
+// group or supergroup selection upon click.
+func NewKeyboardButtonRequestGroup(text string, requestID int) KeyboardButton {
+	return NewKeyboardButtonRequestChat(text, KeyboardButtonRequestChat{
+		RequestID:     requestID,
+		ChatIsChannel: false,
+	})
+}
+
+// NewKeyboardButtonRequestChannel creates a keyboard button that requests
+// channel selection upon click.
+func NewKeyboardButtonRequestChannel(text string, requestID int) KeyboardButton {
+	return NewKeyboardButtonRequestChat(text, KeyboardButtonRequestChat{
+		RequestID:     requestID,
+		ChatIsChannel: true,
+	})
+}
+
+// NewKeyboardButtonRequestAnyChat creates a keyboard button that requests
+// any chat (group, supergroup, or channel) selection upon click.
+func NewKeyboardButtonRequestAnyChat(text string, requestID int, chatIsChannel bool) KeyboardButton {
+	return NewKeyboardButtonRequestChat(text, KeyboardButtonRequestChat{
+		RequestID:     requestID,
+		ChatIsChannel: chatIsChannel,
+	})
+}
+
 // NewKeyboardButtonRow creates a row of keyboard buttons.
 func NewKeyboardButtonRow(buttons ...KeyboardButton) []KeyboardButton {
 	var row []KeyboardButton

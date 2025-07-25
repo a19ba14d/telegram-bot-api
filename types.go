@@ -629,6 +629,14 @@ type Message struct {
 	//
 	// optional
 	WebAppData *WebAppData `json:"web_app_data,omitempty"`
+	// UsersShared is a service message: users shared with the bot.
+	//
+	// optional
+	UsersShared *UsersShared `json:"users_shared,omitempty"`
+	// ChatShared is a service message: a chat shared with the bot.
+	//
+	// optional
+	ChatShared *ChatShared `json:"chat_shared,omitempty"`
 	// ReplyMarkup is the Inline keyboard attached to the message.
 	// login_url buttons are represented as ordinary url buttons.
 	//
@@ -1214,6 +1222,59 @@ type VideoChatParticipantsInvited struct {
 	Users []User `json:"users,omitempty"`
 }
 
+// UsersShared contains information about the users whose identifiers were shared
+// with the bot using a KeyboardButtonRequestUsers button.
+type UsersShared struct {
+	// RequestID is the identifier of the request.
+	RequestID int `json:"request_id"`
+	// Users is information about users shared with the bot.
+	Users []SharedUser `json:"users"`
+}
+
+// SharedUser contains information about a user that was shared with the bot
+// using a KeyboardButtonRequestUsers button.
+type SharedUser struct {
+	// UserID is the identifier of the shared user.
+	UserID int64 `json:"user_id"`
+	// FirstName is the first name of the user, if the name was requested by the bot.
+	//
+	// optional
+	FirstName *string `json:"first_name,omitempty"`
+	// LastName is the last name of the user, if the name was requested by the bot.
+	//
+	// optional
+	LastName *string `json:"last_name,omitempty"`
+	// Username is the username of the user, if the username was requested by the bot.
+	//
+	// optional
+	Username *string `json:"username,omitempty"`
+	// Photo is the profile photo of the user, if the photo was requested by the bot.
+	//
+	// optional
+	Photo []PhotoSize `json:"photo,omitempty"`
+}
+
+// ChatShared contains information about the chat whose identifier was shared
+// with the bot using a KeyboardButtonRequestChat button.
+type ChatShared struct {
+	// RequestID is the identifier of the request.
+	RequestID int `json:"request_id"`
+	// ChatID is the identifier of the shared chat.
+	ChatID int64 `json:"chat_id"`
+	// Title is the title of the chat, if the title was requested by the bot.
+	//
+	// optional
+	Title *string `json:"title,omitempty"`
+	// Username is the username of the chat, if the username was requested by the bot.
+	//
+	// optional
+	Username *string `json:"username,omitempty"`
+	// Photo is the profile photo of the chat, if the photo was requested by the bot.
+	//
+	// optional
+	Photo []PhotoSize `json:"photo,omitempty"`
+}
+
 // UserProfilePhotos contains a set of user profile photos.
 type UserProfilePhotos struct {
 	// TotalCount total number of profile pictures the target user has
@@ -1323,6 +1384,18 @@ type KeyboardButton struct {
 	//
 	// optional
 	WebApp *WebAppInfo `json:"web_app,omitempty"`
+	// RequestUsers if specified, pressing the button will open a list of suitable users.
+	// Tapping on any user will send its identifier to the bot in a "users_shared" service message.
+	// Available in private chats only.
+	//
+	// optional
+	RequestUsers *KeyboardButtonRequestUsers `json:"request_users,omitempty"`
+	// RequestChat if specified, pressing the button will open a list of suitable chats.
+	// Tapping on a chat will send its identifier to the bot in a "chat_shared" service message.
+	// Available in private chats only.
+	//
+	// optional
+	RequestChat *KeyboardButtonRequestChat `json:"request_chat,omitempty"`
 }
 
 // KeyboardButtonPollType represents type of poll, which is allowed to
@@ -1332,6 +1405,97 @@ type KeyboardButtonPollType struct {
 	// in the quiz mode. If regular is passed, only regular polls will be
 	// allowed. Otherwise, the user will be allowed to create a poll of any type.
 	Type string `json:"type"`
+}
+
+// KeyboardButtonRequestUsers defines the criteria used to request suitable users.
+// The identifier of the selected users will be shared with the bot when the
+// corresponding button is pressed.
+type KeyboardButtonRequestUsers struct {
+	// RequestID is a signed 32-bit identifier of the request, which will be received
+	// back in the UsersShared object. Must be unique within the message.
+	RequestID int `json:"request_id"`
+	// UserIsBot if True, request a bot; if False, request a regular user.
+	// If not specified, no additional restrictions are applied.
+	//
+	// optional
+	UserIsBot *bool `json:"user_is_bot,omitempty"`
+	// UserIsPremium if True, request a premium user; if False, request a non-premium user.
+	// If not specified, no additional restrictions are applied.
+	//
+	// optional
+	UserIsPremium *bool `json:"user_is_premium,omitempty"`
+	// MaxQuantity is the maximum number of users to be selected; 1-10.
+	// Defaults to 1.
+	//
+	// optional
+	MaxQuantity int `json:"max_quantity,omitempty"`
+	// RequestName if True, request the users' first and last name.
+	//
+	// optional
+	RequestName bool `json:"request_name,omitempty"`
+	// RequestUsername if True, request the users' username.
+	//
+	// optional
+	RequestUsername bool `json:"request_username,omitempty"`
+	// RequestPhoto if True, request the users' photo.
+	//
+	// optional
+	RequestPhoto bool `json:"request_photo,omitempty"`
+}
+
+// KeyboardButtonRequestChat defines the criteria used to request a suitable chat.
+// The identifier of the selected chat will be shared with the bot when the
+// corresponding button is pressed.
+type KeyboardButtonRequestChat struct {
+	// RequestID is a signed 32-bit identifier of the request, which will be received
+	// back in the ChatShared object. Must be unique within the message.
+	RequestID int `json:"request_id"`
+	// ChatIsChannel if True, request a channel chat; if False, request a group or supergroup chat.
+	ChatIsChannel bool `json:"chat_is_channel"`
+	// ChatIsForum if True, request a forum supergroup; if False, request a non-forum chat.
+	// If not specified, no additional restrictions are applied.
+	//
+	// optional
+	ChatIsForum *bool `json:"chat_is_forum,omitempty"`
+	// ChatHasUsername if True, request a supergroup or channel with a username;
+	// if False, request a chat without a username.
+	// If not specified, no additional restrictions are applied.
+	//
+	// optional
+	ChatHasUsername *bool `json:"chat_has_username,omitempty"`
+	// ChatIsCreated if True, request a chat owned by the user.
+	// Otherwise, no additional restrictions are applied.
+	//
+	// optional
+	ChatIsCreated *bool `json:"chat_is_created,omitempty"`
+	// UserAdministratorRights specifies the required administrator rights of the user in the chat.
+	// If not specified, no additional restrictions are applied.
+	//
+	// optional
+	UserAdministratorRights *ChatAdministratorRights `json:"user_administrator_rights,omitempty"`
+	// BotAdministratorRights specifies the required administrator rights of the bot in the chat.
+	// The rights must be a subset of UserAdministratorRights.
+	// If not specified, no additional restrictions are applied.
+	//
+	// optional
+	BotAdministratorRights *ChatAdministratorRights `json:"bot_administrator_rights,omitempty"`
+	// BotIsMember if True, request a chat with the bot as a member.
+	// Otherwise, no additional restrictions are applied.
+	//
+	// optional
+	BotIsMember *bool `json:"bot_is_member,omitempty"`
+	// RequestTitle if True, request the chat's title.
+	//
+	// optional
+	RequestTitle bool `json:"request_title,omitempty"`
+	// RequestUsername if True, request the chat's username.
+	//
+	// optional
+	RequestUsername bool `json:"request_username,omitempty"`
+	// RequestPhoto if True, request the chat's photo.
+	//
+	// optional
+	RequestPhoto bool `json:"request_photo,omitempty"`
 }
 
 // ReplyKeyboardRemove Upon receiving a message with this object, Telegram
